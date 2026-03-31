@@ -12,4 +12,5 @@ public class Cliente {
     private String rut;
     private String nombre;
     private String correo;
+    private String numTel;
 }

@@ -1,7 +1,7 @@
 # DevopsEP-1
 # 1.Justificación GITFLOW
 ### Utilizamos gitflow ya que este modelo porque separa estrictamente el código en desarrollo del código estable que va a producción. Como estamos trabajando con un microservicio cada cambio debe estar presente de manera modular por lo cuál se ajusta al modelo de ramas de gitflow para cambiar y supervisar cambios sin tener que comprometer el código de manera inicial. 
-## La cúal fue estructurada por:
+## La cual fue estructurada por:
 ### MAIN : Nos permite mantener el servidor activo hasta el momento de realizar una actualización. 
 ### DEVELOP: Nos permite testear parches o actualizaciónes antes de mandar al main. 
 

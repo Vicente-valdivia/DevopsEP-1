@@ -1,14 +1,14 @@
 # DevopsEP-1
 # 1.Justificación GITFLOW
-### Utilizamos gitflow ya que este modelo porque separa estrictamente el código en desarrollo del código estable que va a producción. Como estamos trabajando con un microservicio cada cambio debe estar presente de manera modular por lo cuál se ajusta al modelo de ramas de gitflow para cambiar y supervisar cambios sin tener que comprometer el código de manera inicial. 
+### Hemos adoptado el modelo Gitflow debido a su capacidad para separar estrictamente el código en fase de desarrollo del código estable destinado a producción. Dado que el proyecto se basa en una arquitectura de microservicios, cada cambio debe ser gestionado de manera modular. Gitflow facilita la supervisión de estas modificaciones sin comprometer la integridad de la rama principal de forma prematura.
 ## La cual fue estructurada por:
-### MAIN : Nos permite mantener el servidor activo hasta el momento de realizar una actualización. 
-### DEVELOP: Nos permite testear parches o actualizaciónes antes de mandar al main. 
+### MAIN :Es la rama de producción. Mantiene el servidor activo y solo recibe actualizaciones cuando el código ha sido validado por completo
+### DEVELOP: Es nuestra rama de integración. Aquí es donde se consolidan y testean todas las funcionalidades, parches o actualizaciones antes de ser fusionadas con la rama Main
 
 ## 2. Guía de Estándares y Buenas Prácticas 
 
 ### Convención de Commits
-Para la **normalización** de todos los cambios en el proyecto, cada commit deberá incluir obligatoriamente el **prefijo de la función** que se está realizando (ej: `feat`, `fix`), seguido de **dos puntos** y una **descripción breve** de lo que trata el commit.
+Para la normalización de todos los cambios en el proyecto, cada commit deberá incluir obligatoriamente el **prefijo de la función** que se está realizando (ej: `feat`, `fix`), seguido de **dos puntos** y una **descripción breve** de lo que trata el commit.
 
 ### Naming de Ramas
 * **Funcionalidades:** `feature/nombre-de-la-mejora`

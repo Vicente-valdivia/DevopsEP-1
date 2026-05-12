@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - master
+  pull_request:
+    branches:
+      - master
 
 jobs:
   # 1. Análisis de Seguridad con Snyk
@@ -17,12 +20,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Snyk necesita Java para leer el pom.xml
       - name: Set up JDK 17
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
+          cache: 'maven'
 
       - name: Install Snyk CLI
         run: npm install -g snyk
@@ -30,7 +33,6 @@ jobs:
       - name: Authenticate and Test
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        # "|| true" permite que el pipeline siga aunque haya vulnerabilidades
         run: |
           snyk auth $SNYK_TOKEN
           snyk test --severity-threshold=high || true 
@@ -56,13 +58,17 @@ jobs:
         working-directory: registrarcliente
     steps:
       - uses: actions/checkout@v4
+      
       - name: Set up JDK 17
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
+          cache: 'maven'
+
       - name: Build and test
         run: mvn clean verify
+
       - name: Upload JaCoCo Report
         uses: actions/upload-artifact@v4
         with:
@@ -79,20 +85,25 @@ jobs:
         working-directory: registrarcliente
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Requerido por Sonar para el historial de commits
+
       - name: Set up JDK 17
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
+          cache: 'maven'
+
       - name: Run SonarCloud Analysis
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           mvn verify sonar:sonar \
           -Dsonar.projectKey=Vicente-valdivia_DevopsEP-1 \
           -Dsonar.organization=vicente-valdivia \
-          -Dsonar.host.url=https://sonarcloud.io \
-          -Dsonar.login=${SONAR_TOKEN}
+          -Dsonar.host.url=https://sonarcloud.io
 
   # 4. Empaquetado final de la aplicación
   build:
@@ -104,13 +115,17 @@ jobs:
         working-directory: registrarcliente
     steps:
       - uses: actions/checkout@v4
+
       - name: Set up JDK 17
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
+          cache: 'maven'
+
       - name: Package application
         run: mvn clean package -DskipTests
+
       - name: Upload JAR artifact
         uses: actions/upload-artifact@v4
         with:

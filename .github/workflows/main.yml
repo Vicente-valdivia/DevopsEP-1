@@ -131,3 +131,24 @@ jobs:
         with:
           name: app-jar
           path: registrarcliente/target/*.jar
+
+  # 5. Despliegue Automático Simulado (Cumple IE1, IE4 e IE5)
+  deploy-simulado:
+    name: Docker Build & Compose Deploy
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Descargar artefacto JAR
+        uses: actions/download-artifact@v4
+        with:
+          name: app-jar
+          path: registrarcliente/target/
+
+      - name: Construir Imagen Docker (Orquestación)
+        run: docker-compose build
+
+      - name: Despliegue Automático Simulado
+        run: docker-compose up -d

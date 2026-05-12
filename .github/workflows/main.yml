@@ -148,7 +148,7 @@ jobs:
           path: registrarcliente/target/
 
       - name: Construir Imagen Docker (Orquestación)
-        run: docker-compose build
+        run: docker compose build
 
       - name: Despliegue Automático Simulado
-        run: docker-compose up -d
+        run: docker compose up -d

@@ -6,12 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class RegistrarclienteApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(RegistrarclienteApplication.class, args);
-
-		// Demostración en vivo del pipeline CI/CD para la evaluación
-		System.out.println("Ejecutando API Registrar Cliente...");
-
-	}
-
+    public static void main(String[] args) {
+        System.out.println("¡Iniciando API Registrar Cliente para el video!");
+        SpringApplication.run(RegistrarclienteApplication.class, args);
+    }
 }

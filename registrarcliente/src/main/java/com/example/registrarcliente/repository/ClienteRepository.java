@@ -9,6 +9,10 @@ import java.util.List;
 public class ClienteRepository {
     private List<Cliente> listaClientes = new ArrayList<>();
 
+    public ClienteRepository() {
+        listaClientes.add(new Cliente(1, "12345678-9", "Juan", "juan@gmail.com"));
+    }
+
     public Cliente buscarPorId(int id) {
         for (Cliente c : listaClientes) {
             if (c.getId() == id) {

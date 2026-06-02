@@ -8,6 +8,10 @@ public class RegistrarclienteApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(RegistrarclienteApplication.class, args);
+
+		// Demostración en vivo del pipeline CI/CD para la evaluación
+		System.out.println("Ejecutando API Registrar Cliente...");
+
 	}
 
 }

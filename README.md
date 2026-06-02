@@ -6,7 +6,6 @@
 ### DEVELOP: Es nuestra rama de integración. Aquí es donde se consolidan y testean todas las funcionalidades, parches o actualizaciones antes de ser fusionadas con la rama Main
 
 ## 2. Guía de Estándares y Buenas Prácticas 
-
 ### Convención de Commits
 Para la normalización de todos los cambios en el proyecto, cada commit deberá incluir obligatoriamente el **prefijo de la función** que se está realizando (ej: `feat`, `fix`), seguido de **dos puntos** y una **descripción breve** de lo que trata el commit.
 
@@ -36,3 +35,4 @@ Para el desarrollo de este encargo, se utilizó la herramienta de IA Gemini como
 Guiar la estructura correcta y optimización del archivo Dockerfile.
 Corregir errores de sintaxis al implementar los comandos de despliegue en el archivo de GitHub Actions.
 Apoyo en la resolución de conflictos de control de versiones con Git.
+

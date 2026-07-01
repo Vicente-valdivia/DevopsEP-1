@@ -3,10 +3,10 @@ kind: Service
 metadata:
   name: registrarcliente-service
 spec:
-  selector:
-    app: registrarcliente
+  type: NodePort  # Cambias LoadBalancer por NodePort
   ports:
-    - protocol: TCP
-      port: 80
+    - port: 80
       targetPort: 8080
-  type: LoadBalancer
+      nodePort: 30080  # Puerto público que usará tu profesor
+  selector:
+    app: registrarcliente  # Asegúrate de que coincida con el tag de tu deployment

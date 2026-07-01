@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 public class Cliente {
     private int id;
     private String rut;
-    private String nombre;
+    private String nombre_completo;
     private String correo;
 }

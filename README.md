@@ -1,22 +1,41 @@
-# DevopsEP-1
-# 1.Justificación GITFLOW
-### Hemos adoptado el modelo Gitflow debido a su capacidad para separar estrictamente el código en fase de desarrollo del código estable destinado a producción. Dado que el proyecto se basa en una arquitectura de microservicios, cada cambio debe ser gestionado de manera modular. Gitflow facilita la supervisión de estas modificaciones sin comprometer la integridad de la rama principal de forma prematura.
-## La cual fue estructurada por:
-### MAIN :Es la rama de producción. Mantiene el servidor activo y solo recibe actualizaciones cuando el código ha sido validado por completo
-### DEVELOP: Es nuestra rama de integración. Aquí es donde se consolidan y testean todas las funcionalidades, parches o actualizaciones antes de ser fusionadas con la rama Main
+resumen del proyecto
+el objetivo de este proyecto es implementar un flujo de trabajo de integración y despliegue continuo (ci/cd). eliminamos los despliegues manuales para garantizar que cada mejora en el código sea validada, probada y desplegada en nuestro servidor de amazon aws ec2 automáticamente.
 
-## 2. Guía de Estándares y Buenas Prácticas 
+objetivos alcanzados
+pipeline automatizado: flujo de trabajo en github actions para coordinar el ciclo de vida del software.
 
-### Convención de Commits
-Para la normalización de todos los cambios en el proyecto, cada commit deberá incluir obligatoriamente el **prefijo de la función** que se está realizando (ej: `feat`, `fix`), seguido de **dos puntos** y una **descripción breve** de lo que trata el commit.
+control de calidad: integración con sonarcloud y jacoco para verificar la calidad y cobertura de pruebas.
 
-### Naming de Ramas
-* **Funcionalidades:** `feature/nombre-de-la-mejora`
-* **Correcciones:** `hotfix/descripcion-del-error`
+despliegue continuo: automatización en aws ec2 mediante contenedores docker.
 
-### Flujo de Merge
-### Nuestro flujo de merge esta separa por `main`  `develop`, el main es directamente para el usuario por lo tanto no se modifica hasta que este completamente desarrollado y testeado en la rama de "Develop"
+seguridad y cumplimiento: implementación de branch protection rules para asegurar que solo código probado llegue a producción.
 
+tecnologías utilizadas
+lenguaje: java con spring boot.
 
-# Prueba 2. 
-DIRIGIRSE A LA RAMA MASTER, AHÍ SE REALIZARON LOS CAMBIOS PARA LA PRUEBA N°2 HOLA
+ci/cd: github actions.
+
+infraestructura: aws ec2, docker y docker compose.
+
+calidad: sonarcloud, jacoco.
+
+declaración de uso de inteligencia artificial
+para el desarrollo de este proyecto, se utilizó asistencia de inteligencia artificial (gemini) como herramienta de soporte técnico y pair programming. el uso de la ia se enfocó en:
+
+resolución de problemas técnicos: depuración de errores en la configuración de github actions (especialmente optimización de memoria).
+
+optimización de archivos yaml: asistencia en la estructura y sintaxis del archivo de configuración del pipeline.
+
+arquitectura de despliegue: guía para la configuración de scripts en el servidor ec2 y orquestación con docker compose.
+
+refactorización: apoyo en la resolución de conflictos de ramas y comandos de consola.
+todas las decisiones arquitectónicas y configuraciones finales fueron validadas y supervisadas por el estudiante para asegurar el cumplimiento de los objetivos.
+
+funcionamiento
+cada vez que se realiza un push a la rama master:
+
+test: github ejecuta las pruebas unitarias y genera reportes con jacoco.
+
+calidad: sonarcloud analiza el código en busca de bugs y vulnerabilidades.
+
+deploy: si todo es exitoso, el servidor se sincroniza vía ssh, recompila la aplicación y reinicia el contenedor con docker compose.

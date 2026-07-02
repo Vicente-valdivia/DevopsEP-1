@@ -65,7 +65,7 @@ jobs:
           -Dsonar.organization=vicente-valdivia \
           -Dsonar.host.url=https://sonarcloud.io
 
-  # 3. Despliegue Automatizado en Amazon EC2 (Cumple IE2)
+# 3. Despliegue Automatizado en Amazon EC2 (Cumple IE2)
   deploy:
     name: Despliegue en AWS EC2
     needs: sonar-analysis
@@ -78,11 +78,15 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # 1. Preparar el servidor: Instalar Java 17 y Docker Compose
+            # 1. Preparar servidor: Instalar Java, Docker Compose y Docker Buildx
             sudo yum install java-17-amazon-corretto -y
             mkdir -p ~/.docker/cli-plugins/
             curl -SL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64 -o ~/.docker/cli-plugins/docker-compose
             chmod +x ~/.docker/cli-plugins/docker-compose
+            
+            # ¡NUEVO!: Descargamos el plugin Buildx v0.17.1 que exige Docker
+            curl -SL https://github.com/docker/buildx/releases/download/v0.17.1/buildx-v0.17.1.linux-amd64 -o ~/.docker/cli-plugins/docker-buildx
+            chmod +x ~/.docker/cli-plugins/docker-buildx
             
             # 2. Descargar el código (Forzando a que sea idéntico a GitHub)
             if [ ! -d "DevopsEP-1" ]; then

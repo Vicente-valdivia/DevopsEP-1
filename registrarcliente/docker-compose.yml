@@ -1,9 +1,0 @@
-services:
-  api-produccion:
-    build:
-      context: ./registrarcliente
-      dockerfile: Dockerfile
-    image: api-registrarcliente:latest
-    ports:
-      - "8080:8080"
-    restart: always

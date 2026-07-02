@@ -33,23 +33,17 @@ jobs:
       - name: Authenticate and Test
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-          NODE_OPTIONS: --max-old-space-size=4096
-        # Si se encuentran vulnerabilidades altas o críticas, el pipeline se detiene
-        run: snyk test --severity-threshold=high
+          # Límite seguro para la RAM de GitHub Actions (5GB)
+          NODE_OPTIONS: --max-old-space-size=5120
+        # Leer el pom.xml directo evita el colapso de memoria de Maven
+        run: snyk test --severity-threshold=high --file=pom.xml
 
       - name: Generate Snyk JSON Report
         if: always()
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-          NODE_OPTIONS: --max-old-space-size=4096
-        run: snyk test --json > snyk-report.json || true
-
-      - name: Upload Snyk Report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: snyk-report
-          path: registrarcliente/snyk-report.json
+          NODE_OPTIONS: --max-old-space-size=5120
+        run: snyk test --json --file=pom.xml > snyk-report.json || true
 
   # 2. Pruebas unitarias y cobertura con JaCoCo
   test:

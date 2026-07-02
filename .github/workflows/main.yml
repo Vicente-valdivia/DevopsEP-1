@@ -13,9 +13,6 @@ jobs:
   snyk-scan:
     name: Escaneo de Seguridad con Snyk
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: registrarcliente
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -27,29 +24,15 @@ jobs:
           java-version: '17'
           cache: 'maven'
 
-      - name: Install Snyk CLI
-        run: npm install -g snyk
-
-      - name: Authenticate and Test
+      - name: Escaneo Oficial de Snyk
+        uses: snyk/actions/maven@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-          NODE_OPTIONS: --max-old-space-size=4096
-        # Si se encuentran vulnerabilidades altas o críticas, el pipeline se detiene
-        run: snyk test --severity-threshold=high
-
-      - name: Generate Snyk JSON Report
-        if: always()
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-          NODE_OPTIONS: --max-old-space-size=4096
-        run: snyk test --json > snyk-report.json || true
-
-      - name: Upload Snyk Report
-        if: always()
-        uses: actions/upload-artifact@v4
+          # Limitamos la memoria de Java (Maven) a 2GB para que Snyk tenga espacio
+          MAVEN_OPTS: "-Xmx2g"
         with:
-          name: snyk-report
-          path: registrarcliente/snyk-report.json
+          command: test
+          args: --severity-threshold=high --file=registrarcliente/pom.xml
 
   # 2. Pruebas unitarias y cobertura con JaCoCo
   test:

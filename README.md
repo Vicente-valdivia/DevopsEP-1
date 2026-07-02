@@ -19,4 +19,4 @@ Para la normalización de todos los cambios en el proyecto, cada commit deberá 
 
 
 # Prueba 2. 
-DIRIGIRSE A LA RAMA MASTER, AHÍ SE REALIZARON LOS CAMBIOS PARA LA PRUEBA N°2
+DIRIGIRSE A LA RAMA MASTER, AHÍ SE REALIZARON LOS CAMBIOS PARA LA PRUEBA N°2 HOLA

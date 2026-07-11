@@ -33,10 +33,10 @@ jobs:
       - name: Authenticate and Test
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-          # Previene el error de falta de memoria (Exit code -13 / SNYK-CLI-0000)
           NODE_OPTIONS: --max-old-space-size=4096
-        # Si se encuentran vulnerabilidades altas o críticas, el pipeline se detiene (Cumple IE6)
+        # Generamos el árbol de dependencias primero para que Snyk no use memoria de más indexando
         run: |
+          mvn dependency:tree
           snyk test --severity-threshold=high
 
       - name: Generate Snyk JSON Report

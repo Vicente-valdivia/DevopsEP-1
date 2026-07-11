@@ -1,4 +1,4 @@
-name: CI/CD Pipeline Completo a AWS EC2
+name: Spring Boot CI/CD Pipeline
 
 on:
   push:
@@ -9,9 +9,53 @@ on:
       - master
 
 jobs:
-  # 1. Pruebas unitarias y cobertura con JaCoCo
+  # 1. Análisis de Seguridad con Snyk
+  snyk-scan:
+    name: Snyk Security Scan
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: registrarcliente
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'maven'
+
+      - name: Install Snyk CLI
+        run: npm install -g snyk
+
+      - name: Authenticate and Test
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+          # Previene el error de falta de memoria (Exit code -13 / SNYK-CLI-0000)
+          NODE_OPTIONS: --max-old-space-size=4096
+        # Si se encuentran vulnerabilidades altas o críticas, el pipeline se detiene (Cumple IE6)
+        run: |
+          snyk test --severity-threshold=high
+
+      - name: Generate Snyk JSON Report
+        if: always()
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+          NODE_OPTIONS: --max-old-space-size=4096
+        run: snyk test --json > snyk-report.json || true
+
+      - name: Upload Snyk Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: snyk-report
+          path: registrarcliente/snyk-report.json
+
+  # 2. Pruebas unitarias y cobertura con JaCoCo
   test:
-    name: Pruebas con JaCoCo
+    name: Run Tests with JaCoCo
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -35,9 +79,9 @@ jobs:
           name: jacoco-report
           path: registrarcliente/target/site/jacoco/
 
-  # 2. Análisis de Calidad y Seguridad con SonarCloud (Cumple IE5 e IE6)
+  # 3. Análisis de Calidad con SonarCloud
   sonar-analysis:
-    name: Análisis en SonarCloud
+    name: SonarCloud Analysis
     runs-on: ubuntu-latest
     needs: test
     defaults:
@@ -46,7 +90,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0 # Necesario para que Sonar analice el historial
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -65,44 +109,57 @@ jobs:
           -Dsonar.organization=vicente-valdivia \
           -Dsonar.host.url=https://sonarcloud.io
 
-# 3. Despliegue Automatizado en Amazon EC2 (Cumple IE2)
-  deploy:
-    name: Despliegue en AWS EC2
-    needs: sonar-analysis
+  # 4. Empaquetado final de la aplicación
+  build:
+    name: Build Jar
     runs-on: ubuntu-latest
+    needs: [snyk-scan, sonar-analysis]
+    defaults:
+      run:
+        working-directory: registrarcliente
     steps:
-      - name: Conectar a EC2 y Desplegar
-        uses: appleboy/ssh-action@v1.0.3
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            # 1. Preparar servidor: Instalar Java, Docker Compose y Docker Buildx
-            sudo yum install java-17-amazon-corretto -y
-            mkdir -p ~/.docker/cli-plugins/
-            curl -SL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64 -o ~/.docker/cli-plugins/docker-compose
-            chmod +x ~/.docker/cli-plugins/docker-compose
-            
-            # ¡NUEVO!: Descargamos el plugin Buildx v0.17.1 que exige Docker
-            curl -SL https://github.com/docker/buildx/releases/download/v0.17.1/buildx-v0.17.1.linux-amd64 -o ~/.docker/cli-plugins/docker-buildx
-            chmod +x ~/.docker/cli-plugins/docker-buildx
-            
-            # 2. Descargar el código (Forzando a que sea idéntico a GitHub)
-            if [ ! -d "DevopsEP-1" ]; then
-              git clone https://github.com/Vicente-valdivia/DevopsEP-1.git
-            fi
-            
-            cd DevopsEP-1
-            git fetch origin
-            git reset --hard origin/master
-            
-            # 3. Compilar el ejecutable de Spring Boot
-            cd registrarcliente
-            chmod +x mvnw
-            ./mvnw clean package -DskipTests
-            cd ..
-            
-            # 4. Orquestar los contenedores en producción
-            docker compose down
-            docker compose up -d --build
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'maven'
+
+      - name: Package application
+        run: mvn clean package -DskipTests
+
+      - name: Upload JAR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-jar
+          path: registrarcliente/target/*.jar
+
+  # 5. Despliegue Automatizado en Amazon EKS (Cumple IE1, IE2, IE4 e IE5)
+  deploy-aws:
+    name: Build Docker & Deploy to Amazon EKS
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Descargar artefacto JAR
+        uses: actions/download-artifact@v4
+        with:
+          name: app-jar
+          path: registrarcliente/target/
+
+      # Inicio de sesión en DockerHub para almacenar la imagen
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # Construye y sube la imagen Docker basada en tu archivo Dockerfile
+      - name: Build and Push Docker Image
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/registrarcliente:latest -f registrarcliente/Dockerfile .
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/registrarcliente:latest
